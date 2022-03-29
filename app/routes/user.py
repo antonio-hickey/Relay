@@ -7,8 +7,8 @@ from app.util.exceptions import UsernameExistsException
 blueprint = Blueprint("user", __name__)
 
 
-@blueprint.route("/register-user", methods=["POST"])
-def register():
+@blueprint.route("/user/sign-up", methods=["POST"])
+def sign_up():
     request_data = request.get_json()
 
     username = request_data.get("username")
@@ -17,10 +17,9 @@ def register():
     try:
         if user_repo.get_user_by_username(username=username):
             return get_error("user_already_exists")
-
     except UsernameExistsException as e:
         return e.error_description, e.status_code
-    except Exception as e:
-        return get_error("internal_server_error"), e
+    except Exception:
+        return get_error("internal_server_error")
 
-    return user_repo.register_user(username=username, password=password), 200
+    return user_repo.register_user(username=username, password=password)
