@@ -33,9 +33,9 @@ def get_user_by_username(username: str) -> Optional[User]:
         users = User.username_search.query(hash_key=username.lower())
     except Exception:
         return None
-    users = list(users)
+    users = list(users)  # type: ignore
 
-    return users[0] if users else None
+    return users[0] if users else None  # type: ignore
 
 
 def register_user(username: str, password: str) -> dict:
