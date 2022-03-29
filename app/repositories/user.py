@@ -7,7 +7,9 @@ from typing import Optional
 
 from Crypto.PublicKey import RSA
 
+from app import session
 from app.models.user import User
+from app.util.error_library import get_error
 from app.util.exceptions import UsernameExistsException
 
 
@@ -36,6 +38,39 @@ def get_user_by_username(username: str) -> Optional[User]:
     users = list(users)  # type: ignore
 
     return users[0] if users else None  # type: ignore
+
+
+def sign_in(username: str, password: str) -> dict:
+    try:
+        user: User = get_user_by_username(username)  # type: ignore
+    except User.DoesNotExist:
+        return get_error("user_does_not_exist")  # type: ignore
+
+    password_hashed = hex(int.from_bytes(
+        sha256(password.encode()).digest(),
+        byteorder="big",
+    ))
+
+    if password_hashed == user.password_hashed:
+        token = session.add_user(user)
+        return {
+            "msg": "Login Successful!",
+            "session_token": token,
+            "status_code": 200,
+        }
+
+    return get_error("user_password_incorrect")  # type: ignore
+
+
+def sign_out(session_token: str) -> dict:
+    try:
+        session.revoke_token(session_token)
+    except Exception:
+        return {"msg": "Failed to sign out!", "status_code": 500}
+    return {
+        "msg": "Successfully signed out!",
+        "status_code": 200,
+    }
 
 
 def register_user(username: str, password: str) -> dict:

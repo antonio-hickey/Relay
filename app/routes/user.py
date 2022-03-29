@@ -23,3 +23,22 @@ def sign_up():
         return get_error("internal_server_error")
 
     return user_repo.register_user(username=username, password=password)
+
+
+@blueprint.route("/user/sign-in", methods=["POST"])
+def sign_in():
+    request_data = request.get_json()
+
+    username = request_data.get("username")
+    password = request_data.get("password")
+
+    return {"result": user_repo.sign_in(username, password)}
+
+
+@blueprint.route("/user/sign-out", methods=["POST"])
+def sign_out():
+    request_data = request.get_json()
+
+    token = request_data.get("session_token")
+
+    return {"result": user_repo.sign_out(token)}
