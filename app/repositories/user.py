@@ -1,3 +1,5 @@
+import random
+import string
 import uuid
 from datetime import datetime, timezone
 from hashlib import sha256
@@ -28,7 +30,7 @@ def must_get_user_by_id(user_id: int) -> User:
 def get_user_by_username(username: str) -> Optional[User]:
     """Get a user by their username."""
     try:
-        users = User.username_search_index.query(hash_key=username.lower())
+        users = User.username_search.query(hash_key=username.lower())
     except Exception:
         return None
     users = list(users)
@@ -53,11 +55,16 @@ def register_user(username: str, password: str) -> dict:
     # Create user's rsa keys
     rsa_key_pair = RSA.generate(bits=2048)
 
+    # Create aes internal key
+    key = ''.join(random.choice(
+        string.ascii_lowercase + string.ascii_uppercase + string.digits,
+    ) for _ in range(15))
+
     # Create user
     user = User()
 
     # Set user attributes
-    user.id = uuid.uuid1().int
+    user.id = int(str(uuid.uuid1().int)[:30])
     user.name = username
     user.password_hashed = password_hashed
     user.rsa_pub_key_n = hex(rsa_key_pair.n)
@@ -68,7 +75,7 @@ def register_user(username: str, password: str) -> dict:
 
     user.save()
 
-    return {"private_key": hex(rsa_key_pair.d)}
+    return {"private_key": hex(rsa_key_pair.d), "internal_key": key}
 
 
 def update_user(user: User):
