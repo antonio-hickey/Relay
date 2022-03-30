@@ -148,7 +148,7 @@ def initiate_contact(initiator: int, target: int) -> None:
     """
     me = must_get_user_by_id(initiator)
 
-    a = random_integer(2, 100)
+    a = random_integer(2, 100)  # Never stored not even user knows this key
     p = random_integer(2, 100)
     g = random_integer(2, 100)
     while g > p:  # Make sure the base is less than the prime
