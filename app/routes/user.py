@@ -1,6 +1,8 @@
 from flask import Blueprint, request
 
+from app.models.user import User
 from app.repositories import user as user_repo
+from app.routes.decorators import authenticate_user
 from app.util.error_library import get_error
 from app.util.exceptions import UsernameExistsException
 
@@ -42,3 +44,51 @@ def sign_out():
     token = request_data.get("session_token")
 
     return {"result": user_repo.sign_out(token)}
+
+
+@blueprint.route("/user/contacts/initiate", methods=["POST"])
+@authenticate_user
+def initiate_contact(user: User):
+    request_data = request.get_json()
+
+    initiator_id = user.id
+    target_id = request_data.get("target_id")
+    user_repo.initiate_contact(initiator=initiator_id, target=target_id)
+
+    return {"Success": 200}
+
+
+@blueprint.route("/user/contacts/accept", methods=["POST"])
+@authenticate_user
+def accept_key_exchange(user: User):
+    request_data = request.get_json()
+
+    initiator_id = user.id
+    target_id = request_data.get("target_id")
+    private_key = request_data.get("internal_key")
+
+    user_repo.accept_contact(
+        initiator=initiator_id,
+        internal_key=private_key,
+        target=target_id,
+    )
+
+    return {"Success": 200}
+
+
+@blueprint.route("/user/contacts/confirm", methods=["POST"])
+@authenticate_user
+def confirm_key_exchange(user: User):
+    request_data = request.get_json()
+
+    initiator_id = user.id
+    target_id = request_data.get("target_id")
+    private_key = request_data.get("internal_key")
+
+    user_repo.confirm_contact(
+        initiator=initiator_id,
+        internal_key=private_key,
+        target=target_id,
+    )
+
+    return {"Success": 200}
