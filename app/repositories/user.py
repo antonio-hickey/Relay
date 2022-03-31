@@ -3,12 +3,15 @@ import string
 import uuid
 from datetime import datetime, timezone
 from hashlib import sha256
+from random import randint as random_integer
 from typing import Optional
 
 from Crypto.PublicKey import RSA
+from pynamodb.exceptions import PutError
 
 from app import session
 from app.models.user import User
+from app.repositories import crypto
 from app.util.error_library import get_error
 from app.util.exceptions import UsernameExistsException
 
@@ -41,6 +44,13 @@ def get_user_by_username(username: str) -> Optional[User]:
 
 
 def sign_in(username: str, password: str) -> dict:
+    """
+    User sign in.
+
+    Find user by username passed, and compare the password hash.
+    If successful return a session token for them to stay logged in,
+    else return error corresponding to the issue.
+    """
     try:
         user: User = get_user_by_username(username)  # type: ignore
     except User.DoesNotExist:
@@ -63,6 +73,12 @@ def sign_in(username: str, password: str) -> dict:
 
 
 def sign_out(session_token: str) -> dict:
+    """
+    User sign out.
+
+    Revoke the session token forcing the user to have
+    to sign back in to regenerate a session token.
+    """
     try:
         session.revoke_token(session_token)
     except Exception:
@@ -74,7 +90,12 @@ def sign_out(session_token: str) -> dict:
 
 
 def register_user(username: str, password: str) -> dict:
-    """Register a user."""
+    """
+    Register a user.
+
+    Check if username already exists else hash the password
+    and create a user, rendering their attributes.
+    """
     timestamp = datetime.now(timezone.utc)
 
     # Check if username already exists
@@ -111,6 +132,114 @@ def register_user(username: str, password: str) -> dict:
     user.save()
 
     return {"private_key": hex(rsa_key_pair.d), "internal_key": key}
+
+
+def initiate_contact(initiator: int, target: int) -> None:
+    """
+    Request contact with another user.
+
+    Create a private key, set public prime and base,
+    and create my contact map to give to target user.
+
+    a := my private key
+    p := our public prime
+    g := our public base
+    A := my public solution
+    """
+    me = must_get_user_by_id(initiator)
+
+    a = random_integer(2, 100)  # Never stored not even user knows this key
+    p = random_integer(2, 100)
+    g = random_integer(2, 100)
+    while g > p:  # Make sure the base is less than the prime
+        g = random_integer(2, 100)
+
+    A = (g ** a) % p
+    my_contact = {
+        "name": me.name,
+        "shared_prime": p,
+        "shared_base": g,
+        "their_shared": A,
+        "rsa_pub": me.rsa_pub_key_n,
+    }
+
+    you = must_get_user_by_id(target)
+    you.contacts[me.id] = my_contact
+    you.save()
+
+
+def accept_contact(initiator: int, internal_key: str, target: int) -> None:
+    """
+    Accept contact request from another user.
+
+    Create private key and use it with the public prime,
+    and base to render a solution. Then create a contact
+    map for me to give to the target user, and computing
+    then encrypting our shared private key.
+
+    b := my private key
+    p := public prime
+    g := public base
+    B := my public solution
+    A := their public solution
+    k := our shared private key
+    """
+    me = must_get_user_by_id(initiator)
+    target_contact = me.contacts[str(target)]
+
+    b = random_integer(2, 100)  # Never stored not even user knows this key
+
+    p = target_contact["shared_prime"]
+    g = target_contact["shared_base"]
+    A = target_contact["their_shared"]
+
+    B = (g ** b) % p
+    k = (g ** (B * A) % p)
+    my_contact = {
+        "name": me.name,
+        "shared_prime": p,
+        "shared_base": g,
+        "their_shared": B,
+        "rsa_pub": me.rsa_pub_key_n,
+    }
+
+    you = must_get_user_by_id(target)
+    you.contacts[me.id] = my_contact
+    try:
+        you.save()
+    except PutError:
+        pass
+
+    target_contact = me.contacts[str(target)]
+    target_contact["shared_private_key"] = crypto.encrypt(str(k), key=internal_key)
+    me.save()
+
+
+def confirm_contact(initiator: int, internal_key: str, target: int) -> None:
+    """
+    Finilize contact.
+
+    Compute and encrypt our shared private key, finishing the key
+    exchange as we both now have our shared private key. We have
+    to use our internal key to decrypt our shared private key though.
+
+    p := public prime
+    g := public base
+    B := my public solution
+    A := their public solution
+    k := our shared private key
+    """
+    me = must_get_user_by_id(initiator)
+    target_user = must_get_user_by_id(target)
+
+    target_contact = me.contacts[str(target)]
+    g, p = target_contact["shared_base"], target_contact["shared_prime"]
+    B = target_contact["their_shared"]
+    A = target_user.contacts[str(initiator)]["their_shared"]
+    k = g ** (A * B) % p
+    target_contact["shared_private_key"] = crypto.encrypt(str(k), key=internal_key)
+
+    me.save()
 
 
 def update_user(user: User):
