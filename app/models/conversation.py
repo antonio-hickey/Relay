@@ -11,7 +11,7 @@ from app.models._meta import pynamodb_table_meta
 
 class Conversation(Model):
     """Table representing a conversation."""
-    Meta = pynamodb_table_meta("relay-conversations")
+    Meta = pynamodb_table_meta("relay-conversations")  # type: ignore
 
     # Conversation attributes
     id = IntegerAttribute(hash_key=True)
@@ -19,7 +19,7 @@ class Conversation(Model):
     image = UnicodeAttribute(null=True)
     banner = UnicodeAttribute(null=True)
     bio = UnicodeAttribute(null=True)
-    participants = MapAttribute(default=DefaultDict)
+    participants = MapAttribute(default=DefaultDict)  # type: ignore
     n_messages = IntegerAttribute(null=True)
     nuke_signature = UnicodeAttribute(null=True)
     created_ts = UTCDateTimeAttribute(null=True)
