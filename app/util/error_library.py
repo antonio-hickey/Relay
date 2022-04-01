@@ -15,6 +15,14 @@ error_dict = {
         "msg": "Incorrect password!",
         "error_code": HTTP_UNAUTHORIZED,
     },
+    "access_level_not_high_enough": {
+        "msg": "Access level is not high enough for attempted action",
+        "error_code": HTTP_UNAUTHORIZED,
+    },
+    "invalid_access_level": {
+        "msg": "Access level does not exist",
+        "error_code": HTTP_UNAUTHORIZED,
+    },
     "internal_server_error": {
         "msg": "Internal Server Error",
         "error_code": HTTP_INTERNAL_SERVER_ERROR,
