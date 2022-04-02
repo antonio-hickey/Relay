@@ -164,7 +164,7 @@ def initiate_contact(initiator: int, target: int) -> None:
     }
 
     you = must_get_user_by_id(target)
-    you.contacts[me.id] = my_contact
+    you.contacts[str(me.id)] = my_contact
     you.save()
 
 
@@ -204,7 +204,7 @@ def accept_contact(initiator: int, internal_key: str, target: int) -> None:
     }
 
     you = must_get_user_by_id(target)
-    you.contacts[me.id] = my_contact
+    you.contacts[str(me.id)] = my_contact
     try:
         you.save()
     except PutError:
@@ -212,6 +212,10 @@ def accept_contact(initiator: int, internal_key: str, target: int) -> None:
 
     target_contact = me.contacts[str(target)]
     target_contact["shared_private_key"] = crypto.encrypt(str(k), key=internal_key)
+
+    you.contacts[str(me.id)]["aes_key"] = crypto.encrypt(internal_key, str(k))
+
+    you.save()
     me.save()
 
 
@@ -238,9 +242,12 @@ def confirm_contact(initiator: int, internal_key: str, target: int) -> None:
     A = target_user.contacts[str(initiator)]["their_shared"]
     k = g ** (A * B) % p
     target_contact["shared_private_key"] = crypto.encrypt(str(k), key=internal_key)
+    target_user.contacts[str(initiator)]["aes_key"] = crypto.encrypt(internal_key, str(k))
 
     me.save()
+    target_user.save()
 
 
-def update_user(user: User):
+def update_user(user: User) -> None:
+    """Update a user."""
     user.save()
