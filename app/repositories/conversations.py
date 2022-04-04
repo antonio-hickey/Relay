@@ -188,7 +188,7 @@ def add_participant(conversation_id: int,
 def remove_participant(conversation_id: int,
                        user_id: int,
                        target_id: int) -> dict:
-    """Add participant to conversation."""
+    """Remove participant from a conversation."""
     convo = get_conversation_by_id(conversation_id)
 
     participants = convo.participants
