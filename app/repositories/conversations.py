@@ -77,6 +77,7 @@ def create_conversation(creator_id: int, title: str, private_key: str,
     conversation.image = image
     conversation.banner = banner
     conversation.bio = ""
+    conversation.channels = {}
     conversation.participants = participants
     conversation.n_messages = 0
     conversation.nuke_signature = signature
@@ -225,5 +226,81 @@ def update_participant(conversation_id: int,
 
     return {
         "msg": f"Successfully updated participant: {participant_id}",
+        "status_code": 200,
+    }
+
+
+def create_channel(conversation_id: int,
+                   title: str,
+                   roles: list[str] = [],
+                   access_levels: list[str] = [],
+                   message_timeout: int = 5,
+                   requires_signatures: bool = False) -> dict:
+    """Create a new channel in a conversation."""
+    timestamp = datetime.now(timezone.utc)
+    convo = get_conversation_by_id(conversation_id)
+    id = int(str(uuid.uuid1().int)[:30])
+
+    convo.channels[str(id)] = {
+        "title": title,
+        "access_levels": access_levels,
+        "roles": roles,
+        "message_timeout": message_timeout,
+        "requires_signatures": requires_signatures,
+        "created_ts": str(timestamp),
+        "last_update_ts": str(timestamp),
+    }
+    convo.save()
+
+    return {
+        "msg": "Successfully created channel.",
+        "status_code": 200,
+    }
+
+
+def update_channel(conversation_id: int,
+                   channel_id: int,
+                   title: str = "",
+                   roles: list[str] = [],
+                   access_levels: list[str] = [],
+                   message_timeout: int = 5,
+                   requires_signatures: bool = False) -> dict:
+    """Update a channel inside a conversation."""
+    timestamp = datetime.now(timezone.utc)
+    convo = get_conversation_by_id(conversation_id)
+    channel = convo.channels[str(channel_id)]
+
+    if title != "":
+        channel["title"] = title
+    if roles != []:
+        channel["roles"] = roles
+    if access_levels != []:
+        channel["access_levels"] = access_levels
+    if message_timeout != 5:
+        channel["message_timeout"] = message_timeout
+    if requires_signatures != channel["requires_signatures"]:
+        channel["requires_signatures"]
+
+    channel["last_update_ts"] = str(timestamp)
+    convo.save()
+
+    return {
+        "msg": "Successfully updated channel.",
+        "status_code": 200,
+    }
+
+
+def delete_channel(conversation_id: int,
+                   channel_id: int) -> dict:
+    """Delete a channel inside a conversation."""
+    convo = get_conversation_by_id(conversation_id)
+    channels = convo.channels.as_dict()
+    del channels[str(channel_id)]
+
+    convo.channels = channels
+    convo.save()
+
+    return {
+        "msg": "Successfully deleted channel.",
         "status_code": 200,
     }
