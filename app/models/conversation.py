@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, DefaultDict
 
 from pynamodb.attributes import (MapAttribute, UnicodeAttribute,
-                                 UTCDateTimeAttribute)
+                                 UTCDateTimeAttribute, ListAttribute)
 from pynamodb.models import Model
 from pynamodb_attributes import IntegerAttribute
 
@@ -19,6 +19,7 @@ class Conversation(Model):
     image = UnicodeAttribute(null=True)
     banner = UnicodeAttribute(null=True)
     bio = UnicodeAttribute(null=True)
+    channels = MapAttribute(default=DefaultDict)  # type: ignore
     participants = MapAttribute(default=DefaultDict)  # type: ignore
     n_messages = IntegerAttribute(null=True)
     nuke_signature = UnicodeAttribute(null=True)
