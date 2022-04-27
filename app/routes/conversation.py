@@ -121,3 +121,63 @@ def remove_participant(user: User):
         user_id=user.id,
         target_id=target_id,
     )
+
+
+@blueprint.route("/conversations/channel/create", methods=["POST"])
+@authenticate_user
+def create_channel(user: User):
+    request_data = request.get_json()
+
+    convo_id = request_data.get("conversation_id")
+    channel_title = request_data.get("channel_title")
+    channel_roles = request_data.get("channel_roles")
+    channel_access_levels = request_data.get("channel_access_levels")
+    channel_message_timeout = request_data.get("channel_message_timeout")
+    channel_req_signatures = request_data.get("channel_requires_signatures")
+
+    return convo_repo.create_channel(
+        conversation_id=convo_id,
+        title=channel_title,
+        roles=channel_roles,
+        access_levels=channel_access_levels,
+        message_timeout=channel_message_timeout,
+        requires_signatures=channel_req_signatures,
+    )
+
+
+@blueprint.route("/conversations/channel/update", methods=["POST"])
+@authenticate_user
+def update_channel(user: User):
+    request_data = request.get_json()
+
+    convo_id = request_data.get("conversation_id")
+    channel_id = request_data.get("channel_id")
+    channel_title = request_data.get("channel_title")
+    channel_roles = request_data.get("channel_roles")
+    channel_access_levels = request_data.get("channel_access_levels")
+    channel_message_timeout = request_data.get("channel_message_timeout")
+    channel_req_signatures = request_data.get("channel_requires_signatures")
+
+    return convo_repo.update_channel(
+        conversation_id=convo_id,
+        channel_id=channel_id,
+        title=channel_title,
+        roles=channel_roles,
+        access_levels=channel_access_levels,
+        message_timeout=channel_message_timeout,
+        requires_signatures=channel_req_signatures,
+    )
+
+
+@blueprint.route("/conversations/channel/remove", methods=["POST"])
+@authenticate_user
+def delete_channel(user: User):
+    request_data = request.get_json()
+
+    convo_id = request_data.get("conversation_id")
+    channel_id = request_data.get("channel_id")
+
+    return convo_repo.delete_channel(
+        conversation_id=convo_id,
+        channel_id=channel_id,
+    )
