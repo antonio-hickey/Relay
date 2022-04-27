@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, DefaultDict
 
 from pynamodb.attributes import (MapAttribute, UnicodeAttribute,
-                                 UTCDateTimeAttribute, ListAttribute)
+                                 UTCDateTimeAttribute)
 from pynamodb.models import Model
 from pynamodb_attributes import IntegerAttribute
 
