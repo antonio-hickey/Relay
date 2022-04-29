@@ -19,6 +19,7 @@ class Conversation(Model):
     image = UnicodeAttribute(null=True)
     banner = UnicodeAttribute(null=True)
     bio = UnicodeAttribute(null=True)
+    channels = MapAttribute(default=DefaultDict)  # type: ignore
     participants = MapAttribute(default=DefaultDict)  # type: ignore
     n_messages = IntegerAttribute(null=True)
     nuke_signature = UnicodeAttribute(null=True)
