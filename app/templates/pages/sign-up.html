@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <meta name="keywords" content="relay, crypto chat, secure messenger, conversation, social, encrypted, communication" />
+    <meta name="description" content="Web application utilizing Relay for secure communication." />
+    <meta name="subject" content="communication">
+    <title>Relay | Secure Communication</title>
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css')}}">
+    <script type="module" src="{{ url_for('static', filename='js/pages/sign-up.js')}}"></script>
+</head>
+
+<body class="authentication-page">
+    <div class="main-layout card-bg-1">
+        <div class="container d-flex flex-column">
+            <div class="row no-gutters text-center align-items-center justify-content-center min-vh-100">
+                <div class="col-12 col-md-6 col-lg-5 col-xl-4">
+                    <h1 class="font-weight-bold">Sign up for Relay</h1>
+                    <p class="text-dark mb-3">No need for personal information, I've always found that to be annoying. Just think of a cool username and a secure, but memorable password.</p>
+                    <div id="status">
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="sr-only">User Name</label>
+                        <input type="text" class="form-control form-control-md" id="username" placeholder="Enter a unique user name">
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="sr-only">Password</label>
+                        <input type="password" class="form-control form-control-md" id="password" placeholder="Enter a secure and memorable password">
+                    </div>
+                    <button id="sign-in-sumbit-btn" class="btn btn-primary btn-lg btn-block text-uppercase font-weight-semibold">Sign up</button>
+                    <p>Already have an account? <a class="font-weight-semibold" href="./sign-in.html">Sign in</a>.</p>
+                </div>
+            </div> 
+        </div>
+
+        <div class="modal fade show" id="keysModal" tabindex="-1" role="dialog" aria-modal="true" style="display: none;">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="alert alert-warning" role="alert" id="key-modal-alert">Here's your keys, please SAVE and keep SECRET !</div>
+              </div>
+              <div class="modal-body" id="keys-modal-body">
+                <div>
+                  <div class="form-group">
+                    <h5 id="internal-key-header">Your Internal AES key:</h5>
+                    <input type="text" class="form-control" id="internal-key-text" readonly></input>
+                  </div>
+                  <div class="form-group">
+                    <h5 id="private-key-header">Your RSA Private Key:</h5>
+                    <textarea class="form-control" id="private-key-text" readonly></textarea>
+                  </div> 
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button 
+                  type="button" 
+                  class="btn btn-secondary close-keys-modal" 
+                  id="has-saved-keys-btn"
+                  data-dismiss="modal"
+                >
+                  I stored them!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+
+</html>
+
+>
