@@ -1,0 +1,17 @@
+textarea {
+  height: 250px !important;
+}
+
+.modal {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  display: flex;
+}
+
+#key-modal-alert {
+  margin: auto;
+  position: relative;
+}
