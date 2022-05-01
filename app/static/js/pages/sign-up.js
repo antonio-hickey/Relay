@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Handle the sign-up proccess upon the
     sumbit button being clicked triggering
     a POST request to the sign-up endpoint
-    to then display our keys to store in a 
+    to then display our keys to store in a
     modal window.
   */
 
@@ -58,10 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
           keysModalToggle();
           document.getElementById('has-saved-keys-btn').onclick = () => {
-            window.location = base + "/web-app/sign-in"
+            window.location = base + "/web-app/sign-in";
           };
         };
       });
   };
 });
-
