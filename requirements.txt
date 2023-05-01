@@ -1,4 +1,4 @@
-Flask==2.0.3
+Flask==2.3.2
 Pynamodb==5.2.1
 pycryptodome==3.14.1
 pynamodb-attributes==0.3.2
